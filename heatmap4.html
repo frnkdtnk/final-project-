@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<div class='wrapper'>
+    <form id='nameForm'>
+    <div class='form-uname'>
+        <label id='nameLable' for='nameField'>type in your max walking distance in meters:</label>
+        <input id='nameField' type='text' maxlength='25'></input>
+    </div>
+    <div class='form-sub'>
+        <button id='subButton' type='button'>enter</button>
+    </div>
+    </form>
+    
+    <div>
+        <p id='result'></p></div>
+  </div>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Heatmaps</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 75%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+      #floating-panel {
+        background-color: #fff;
+        border: 1px solid #999;
+        left: 75%;
+        padding: 5px;
+        position: absolute;
+        top: 10px;
+        z-index: 5;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="floating-panel">
+      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+
+    </div>
+    <div id="map"></div>
+    <script>
+
+      // This example requires the Visualization library. Include the libraries=visualization
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization">
+
+      var map, heatmap;
+      
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 18,
+          center: {lat: 37.775, lng: -122.434},
+          mapTypeId: 'satellite'
+        });
+        function  grid(currentposition,walkingrange) {
+    positions=[]
+    var i=0
+    var j=0
+    for (i=0;i<walkingrange;i++){
+      for (j=0;j<walkingrange;j++){
+        var deltalat=(1.0/111111.0)*j
+        var deltalong=(1.0/(111111.0*Math.cos(currentposition.lat*Math.PI/180)))*i
+        var distance=Math.hypot(i,j)
+        if (distance<walkingrange){
+            var newlat =currentposition.lat+deltalat
+            var newlng=currentposition.lng+deltalong
+            positions.push(new google.maps.LatLng(newlat,newlng))
+            var newlat2 =currentposition.lat-deltalat
+            var newlng2=currentposition.lng+deltalong
+            positions.push(new google.maps.LatLng(newlat2,newlng2))
+            var newlat3 =currentposition.lat+deltalat
+            var newlng3=currentposition.lng-deltalong
+            positions.push(new google.maps.LatLng(newlat3,newlng3))
+            var newlat4 =currentposition.lat-deltalat
+            var newlng4=currentposition.lng-deltalong
+            positions.push(new google.maps.LatLng(newlat4,newlng4))
+        }
+      }
+    }
+    return positions }
+
+
+      }
+
+      function toggleHeatmap() {
+        heatmap.setMap(heatmap.getMap() ? null : map);
+      }
+
+      function getUserName() {
+    var nameField = document.getElementById('nameField').value;
+    var result = document.getElementById('result');
+    coplocations=[new google.maps.LatLng(37.782551, -122.445368),new google.maps.LatLng(37.767980, -122.405745),new google.maps.LatLng(37.764992, -122.421481)];
+    function  grid(currentposition,walkingrange) {
+    positions=[]
+    var i=0
+    var j=0
+    function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+        var R = 6371000; // Radius of the earth in m
+        var dLat = deg2rad(lat2-lat1);  // deg2rad below
+        var dLon = deg2rad(lon2-lon1); 
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        var d = R * c; // Distance in m
+        return d;
+            }
+    function deg2rad(deg) {
+    return deg * (Math.PI/180)
+}
+    for (i=0;i<walkingrange;i++){
+      for (j=0;j<walkingrange;j++){
+        var deltalat=(1.0/111111.0)*j
+        var deltalong=(1.0/(111111.0*Math.cos(currentposition.lat*Math.PI/180)))*i
+        var distance=Math.hypot(i,j)
+        if (distance<walkingrange){
+            var newlat =currentposition.lat+deltalat
+            var newlng=currentposition.lng+deltalong
+            positions.push(new google.maps.LatLng(newlat,newlng))
+            var newlat2 =currentposition.lat-deltalat
+            var newlng2=currentposition.lng+deltalong
+            positions.push(new google.maps.LatLng(newlat2,newlng2))
+            var newlat3 =currentposition.lat+deltalat
+            var newlng3=currentposition.lng-deltalong
+            positions.push(new google.maps.LatLng(newlat3,newlng3))
+            var newlat4 =currentposition.lat-deltalat
+            var newlng4=currentposition.lng-deltalong
+            positions.push(new google.maps.LatLng(newlat4,newlng4))
+            
+        }
+      }
+    }
+    function isFarenoughfromcops(element1){
+        function distancechecker(element2) {
+            var comparison=getDistanceFromLatLonInKm(element1.lat,element1.lng,element2.lat,element2.lng)>=5;
+            return comparison;
+        }
+        filtered =coplocations.filter(distancechecker)
+        return filtered.length==coplocations.length;
+        }
+    filteredpositions=positions.filter(isFarenoughfromcops)
+    return positions }   
+    if (nameField.length < 1) {
+        result.textContent = 'How far are you willing to go? (in meters)';
+            
+    } 
+    else {
+        result.textContent = 'Your max range is: ' + nameField;
+        points=grid({lat: 37.775, lng: -122.434},nameField)
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: points,
+          map: map
+        });
+    }
+
+}
+          
+var subButton = document.getElementById('subButton');
+subButton.addEventListener('click', getUserName, false) 
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZe5gt_56phXr_DcHJwTlKIVj2bJQGOW4&libraries=visualization&callback=initMap">
+    </script>
+  </body>
+</html>
